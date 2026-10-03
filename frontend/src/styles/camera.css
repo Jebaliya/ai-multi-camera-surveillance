@@ -1,0 +1,133 @@
+.camera-controls {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+/* ── Viewfinder ──
+   Signature element: an animated four-corner reticle frames the feed,
+   and a scan sweep runs while recognition is active. */
+.camera-container {
+  position: relative;
+  width: 100%;
+  background: #000;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  isolation: isolate;
+}
+
+.camera-container video,
+.camera-container img.static-upload {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.camera-container video { z-index: 1; }
+.camera-container img.static-upload { z-index: 2; }
+
+.camera-container canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.reticle {
+  position: absolute;
+  inset: 14px;
+  z-index: 6;
+  pointer-events: none;
+  opacity: 0.35;
+  transition: opacity var(--t);
+}
+.reticle.is-live { opacity: 0.85; }
+.reticle span {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--signal);
+}
+.reticle span:nth-child(1) { top: 0; left: 0; border-right: none; border-bottom: none; border-top-left-radius: 4px; }
+.reticle span:nth-child(2) { top: 0; right: 0; border-left: none; border-bottom: none; border-top-right-radius: 4px; }
+.reticle span:nth-child(3) { bottom: 0; left: 0; border-right: none; border-top: none; border-bottom-left-radius: 4px; }
+.reticle span:nth-child(4) { bottom: 0; right: 0; border-left: none; border-top: none; border-bottom-right-radius: 4px; }
+.reticle.is-live span { animation: reticle-pulse 2.4s var(--ease) infinite; }
+@keyframes reticle-pulse {
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(45, 212, 191, 0)); }
+  50% { filter: drop-shadow(0 0 6px rgba(45, 212, 191, 0.65)); }
+}
+
+.scan-sweep {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 40%;
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(45, 212, 191, 0.16),
+    transparent
+  );
+  animation: sweep 3.2s linear infinite;
+}
+@keyframes sweep {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(250%); }
+}
+
+.camera-placeholder {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.6rem;
+  color: var(--ink-faint);
+  background:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0 1px, transparent 1px 28px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.02) 0 1px, transparent 1px 28px);
+}
+.camera-placeholder svg { width: 34px; height: 34px; opacity: 0.6; }
+.camera-placeholder p { font-size: 0.85rem; }
+
+.camera-status {
+  padding: 0.85rem 1.5rem;
+  background: var(--panel-raised);
+  border-top: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+  font-family: var(--font-mono);
+  color: var(--ink-dim);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ink-faint);
+  flex-shrink: 0;
+}
+.status-dot.online {
+  background: var(--match);
+  box-shadow: 0 0 0 3px var(--match-tint);
+  animation: dot-pulse 2s ease-in-out infinite;
+}
+@keyframes dot-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px var(--match-tint); }
+  50% { box-shadow: 0 0 0 6px transparent; }
+}

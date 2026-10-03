@@ -1,0 +1,127 @@
+/* Camera Management Styling */
+
+.cam-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.cam-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.cam-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+.cam-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--t-fast), border-color var(--t-fast);
+}
+
+.cam-card:hover {
+  border-color: var(--line-soft);
+  transform: translateY(-2px);
+}
+
+.cam-preview-box {
+  position: relative;
+  background: var(--void);
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.cam-stream-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cam-offline-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--ink-faint);
+  font-size: 0.85rem;
+}
+
+.cam-status-overlay {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(10, 14, 19, 0.75);
+  backdrop-filter: blur(4px);
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  border: 1px solid var(--line);
+}
+
+.cam-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.cam-name-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.cam-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+
+.cam-loc {
+  font-size: 0.85rem;
+  color: var(--signal-strong);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.cam-url-mono {
+  background: var(--panel-raised);
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-dim);
+  word-break: break-all;
+  border: 1px solid var(--line-soft);
+}
+
+.cam-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line-soft);
+}

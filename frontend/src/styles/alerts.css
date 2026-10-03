@@ -1,0 +1,97 @@
+/* Alerts Page Styling */
+
+.alerts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.alerts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.alert-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--t-fast);
+}
+
+.alert-card.status-pending {
+  border-left: 4px solid var(--alert);
+}
+
+.alert-card.status-acknowledged {
+  border-left: 4px solid #fbbf24;
+}
+
+.alert-card.status-resolved {
+  border-left: 4px solid var(--match);
+  opacity: 0.8;
+}
+
+.alert-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 280px;
+}
+
+.alert-type-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.alert-badge-pending {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--alert);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.alert-badge-ack {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.alert-badge-resolved {
+  background: rgba(74, 222, 128, 0.15);
+  color: var(--match);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.alert-reason-box {
+  background: var(--panel-raised);
+  border: 1px solid var(--line);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+.alert-locations {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.8rem;
+  color: var(--ink-dim);
+  flex-wrap: wrap;
+}
+
+.alert-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}

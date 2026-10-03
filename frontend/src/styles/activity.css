@@ -1,0 +1,123 @@
+/* Person Activity Timeline Styling */
+
+.activity-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.activity-filter-bar {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.person-select-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.timeline-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  min-height: 400px;
+}
+
+.timeline-flow {
+  position: relative;
+  padding-left: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.timeline-flow::before {
+  content: "";
+  position: absolute;
+  top: 1rem;
+  bottom: 1rem;
+  left: 14px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--signal), var(--line));
+}
+
+.timeline-step {
+  position: relative;
+}
+
+.timeline-node {
+  position: absolute;
+  left: -2.5rem;
+  top: 4px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--panel-raised);
+  border: 2px solid var(--signal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(45, 212, 191, 0.4);
+}
+
+.timeline-node-inner {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--signal-strong);
+}
+
+.timeline-content {
+  background: var(--panel-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  transition: transform var(--t-fast), border-color var(--t-fast);
+}
+
+.timeline-content:hover {
+  border-color: var(--line-soft);
+  transform: translateX(4px);
+}
+
+.timeline-time-badge {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--signal-strong);
+  background: var(--signal-tint);
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-sm);
+  display: inline-block;
+  margin-bottom: 0.4rem;
+}
+
+.timeline-details h4 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: var(--ink);
+  margin-bottom: 0.25rem;
+}
+
+.timeline-location {
+  color: var(--ink-dim);
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
