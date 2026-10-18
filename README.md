@@ -125,6 +125,7 @@ npm install
 npm run dev
 ```
 ```
+```
 
 This starts Vite on **http://localhost:5173**. Its dev server automatically
 proxies any `/api/*` call to `http://localhost:8000` (configured in
