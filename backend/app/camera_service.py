@@ -6,13 +6,51 @@ bounding boxes and person identities, and serves real-time MJPEG streams.
 
 import time
 import threading
+from pathlib import Path
 from typing import Dict, Optional, Generator, Tuple
 import cv2
 import numpy as np
 
+from .config import TEST_VIDEOS_DIR, BASE_DIR
 from .face_service import face_service
 from .database import SessionLocal
 from .models import Camera
+
+
+def resolve_stream_source(source: str) -> Tuple[str | int, bool]:
+    """
+    Resolve camera stream source to either:
+    1. Integer device index (e.g. 0 for webcam) -> (0, False)
+    2. Network RTSP/HTTP URL -> ("rtsp://...", False)
+    3. Video file path on disk -> ("/path/to/video.mp4", True)
+    """
+    raw = str(source).strip()
+    if raw.isdigit():
+        return int(raw), False
+
+    if raw.lower().startswith(("rtsp://", "http://", "https://")):
+        return raw, False
+
+    # Check direct file path
+    p = Path(raw)
+    if p.is_file():
+        return str(p.resolve()), True
+
+    # Check within TEST_VIDEOS_DIR
+    in_test = TEST_VIDEOS_DIR / raw
+    if in_test.is_file():
+        return str(in_test.resolve()), True
+
+    in_test_name = TEST_VIDEOS_DIR / p.name
+    if in_test_name.is_file():
+        return str(in_test_name.resolve()), True
+
+    # Check within BASE_DIR
+    in_base = BASE_DIR / raw
+    if in_base.is_file():
+        return str(in_base.resolve()), True
+
+    return raw, False
 
 
 class CameraStream:
@@ -36,6 +74,7 @@ class CameraStream:
         self.latest_frame: Optional[np.ndarray] = None
         self.annotated_jpeg: Optional[bytes] = None
         self.is_online = False
+        self.is_video_file = False
         self.last_seen = 0.0
 
         # Recognition rate limiter (runs recognition every N frames to conserve CPU)
@@ -63,17 +102,18 @@ class CameraStream:
         """Open the video capture source."""
         self._release_cap()
         try:
-            # Check if source is a numeric webcam index (e.g. "0")
-            if str(self.source).strip().isdigit():
-                src = int(self.source)
-                self.cap = cv2.VideoCapture(src, cv2.CAP_DSHOW if cv2.os.name == "nt" else cv2.CAP_ANY)
+            resolved_source, is_file = resolve_stream_source(self.source)
+            self.is_video_file = is_file
+
+            if isinstance(resolved_source, int):
+                self.cap = cv2.VideoCapture(resolved_source, cv2.CAP_DSHOW if cv2.os.name == "nt" else cv2.CAP_ANY)
             else:
-                src = str(self.source).strip()
-                self.cap = cv2.VideoCapture(src)
+                self.cap = cv2.VideoCapture(str(resolved_source))
 
             if self.cap and self.cap.isOpened():
-                # Set buffer size to 1 to reduce RTSP latency
-                self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+                if not self.is_video_file:
+                    # Set buffer size to 1 to reduce RTSP latency
+                    self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
                 self.is_online = True
                 return True
         except Exception as e:
@@ -109,11 +149,17 @@ class CameraStream:
 
             success, frame = self.cap.read()
             if not success or frame is None:
-                # Video ended or stream dropped
-                print(f"[Camera {self.camera_id}] Frame read failed. Reconnecting...")
-                self._release_cap()
-                time.sleep(1.0)
-                continue
+                # If source is a video file, seamlessly rewind to frame 0 for infinite loop testing
+                if self.is_video_file and self.cap is not None:
+                    self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                    success, frame = self.cap.read()
+
+                if not success or frame is None:
+                    # Video ended or stream dropped
+                    print(f"[Camera {self.camera_id}] Frame read failed. Reconnecting...")
+                    self._release_cap()
+                    time.sleep(1.0)
+                    continue
 
             self.last_seen = time.time()
             self.is_online = True
@@ -174,9 +220,10 @@ class CameraStream:
                 )
 
             # Camera name overlay at top-left
+            source_badge = " [VIDEO LOOP]" if self.is_video_file else ""
             cv2.putText(
                 display_frame,
-                f"CAM: {self.name} | {self.location}",
+                f"CAM: {self.name} | {self.location}{source_badge}",
                 (12, 24),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.6,
@@ -263,20 +310,31 @@ class CameraService:
     @staticmethod
     def test_connection(source: str) -> Tuple[bool, str]:
         """
-        Quick probe to check if an RTSP URL or webcam index is accessible.
+        Quick probe to check if an RTSP URL, webcam index, or video file is accessible.
         """
         try:
-            if str(source).strip().isdigit():
-                cap = cv2.VideoCapture(int(source), cv2.CAP_DSHOW if cv2.os.name == "nt" else cv2.CAP_ANY)
+            resolved_source, is_file = resolve_stream_source(source)
+
+            if isinstance(resolved_source, int):
+                cap = cv2.VideoCapture(resolved_source, cv2.CAP_DSHOW if cv2.os.name == "nt" else cv2.CAP_ANY)
             else:
-                cap = cv2.VideoCapture(str(source).strip())
+                cap = cv2.VideoCapture(str(resolved_source))
 
             if cap is not None and cap.isOpened():
-                ret, _ = cap.read()
-                cap.release()
-                if ret:
+                ret, frame = cap.read()
+                if ret and frame is not None:
+                    if is_file:
+                        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+                        fps = cap.get(cv2.CAP_PROP_FPS) or 15.0
+                        w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+                        h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                        dur = round(frame_count / fps, 1) if fps > 0 else 0
+                        cap.release()
+                        return True, f"Video verified: {w}x{h} @ {int(fps)} FPS ({dur}s, {frame_count} frames, continuous loop)."
+                    cap.release()
                     return True, "Camera connected and frame received successfully."
-                return False, "Camera opened but could not read frame."
+                cap.release()
+                return False, "Source opened but could not read frame."
             return False, "Could not open camera stream source."
         except Exception as e:
             return False, f"Connection failed: {str(e)}"

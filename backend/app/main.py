@@ -15,7 +15,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from .config import ALLOWED_ORIGINS, KNOWN_FACES_DIR
+from .config import ALLOWED_ORIGINS, KNOWN_FACES_DIR, TEST_VIDEOS_DIR
 from .database import engine, Base
 from .face_service import face_service
 from .camera_service import camera_service
@@ -52,8 +52,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Static file serving for registered user photos
+# Static file serving for registered user photos and uploaded test videos
 app.mount("/api/faces", StaticFiles(directory=str(KNOWN_FACES_DIR)), name="faces")
+app.mount("/api/test-videos", StaticFiles(directory=str(TEST_VIDEOS_DIR)), name="test_videos")
 
 # Routers
 app.include_router(dashboard.router)

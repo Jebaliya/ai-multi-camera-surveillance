@@ -18,9 +18,14 @@ else:
 
 KNOWN_FACES_DIR = RUNTIME_DIR / "known_faces"
 MODELS_DIR = RUNTIME_DIR / "models"
+TEST_VIDEOS_DIR = RUNTIME_DIR / "test_videos"
 
 KNOWN_FACES_DIR.mkdir(parents=True, exist_ok=True)
 MODELS_DIR.mkdir(parents=True, exist_ok=True)
+TEST_VIDEOS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Video file extensions accepted for multi-camera simulation
+ALLOWED_VIDEO_EXTENSIONS = {".mp4", ".avi", ".mov", ".mkv", ".webm", ".m4v"}
 
 # ── Database Configuration ──────────────────────────────────
 # In Docker, DATABASE_URL is passed via environment variable (e.g., postgresql://postgres:postgres@postgres:5432/face_attendance)
